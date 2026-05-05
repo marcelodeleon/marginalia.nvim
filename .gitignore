@@ -1,0 +1,9 @@
+*.luac
+luac.out
+
+.luarc.json
+.luarc.jsonc
+
+.DS_Store
+
+/tests/output/
