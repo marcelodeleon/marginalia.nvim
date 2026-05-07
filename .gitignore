@@ -7,3 +7,4 @@ luac.out
 .DS_Store
 
 /tests/output/
+/deps/
