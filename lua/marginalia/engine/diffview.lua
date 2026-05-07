@@ -28,10 +28,22 @@ function M.open(source)
 end
 
 function M.close()
+    local view = current_view()
+    if not view then return end
+    local diffview_tabnr = vim.api.nvim_tabpage_get_number(0)
     local ok, err = pcall(function() require("diffview").close() end)
     if not ok and not err:match("E445") then
         error(err)
     end
+    -- Fallback: if the diffview tab still exists (file panel leftover), close it
+    vim.schedule(function()
+        for _, tp in ipairs(vim.api.nvim_list_tabpages()) do
+            if vim.api.nvim_tabpage_get_number(tp) == diffview_tabnr then
+                pcall(vim.cmd, "tabclose " .. diffview_tabnr)
+                break
+            end
+        end
+    end)
 end
 
 -- returns { before = bufnr|nil, after = bufnr|nil } for the focused file, or nil if no view
