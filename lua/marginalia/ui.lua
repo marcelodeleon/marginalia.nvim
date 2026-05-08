@@ -1,5 +1,14 @@
 local M = {}
 
+local function set_default_hl(name, link)
+    if vim.fn.hlexists(name) == 0 or vim.tbl_isempty(vim.api.nvim_get_hl(0, { name = name })) then
+        vim.api.nvim_set_hl(0, name, { link = link })
+    end
+end
+
+set_default_hl("MarginaliaBorder", "FloatBorder")
+set_default_hl("MarginaliaTitle", "FloatBorder")
+
 local _input_id = 0
 
 -- Open a floating input buffer for writing a comment.
@@ -22,10 +31,13 @@ function M.open_input(opts)
         vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     end
 
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
     local win = vim.api.nvim_open_win(buf, true, {
-        relative = "cursor",
-        row = 1,
-        col = 0,
+        relative = "editor",
+        row = row,
+        col = col,
         width = width,
         height = height,
         style = "minimal",
@@ -33,6 +45,7 @@ function M.open_input(opts)
         title = " Comment ",
         title_pos = "center",
     })
+    vim.wo[win].winhighlight = "Normal:Normal,FloatBorder:MarginaliaBorder,FloatTitle:MarginaliaTitle"
 
     vim.cmd("startinsert")
 
@@ -107,10 +120,13 @@ function M.open_view(comments)
     vim.api.nvim_buf_set_lines(buf, 0, -1, false, lines)
     vim.bo[buf].modifiable = false
 
+    local row = math.floor((vim.o.lines - height) / 2)
+    local col = math.floor((vim.o.columns - width) / 2)
+
     local win = vim.api.nvim_open_win(buf, true, {
-        relative = "cursor",
-        row = 1,
-        col = 0,
+        relative = "editor",
+        row = row,
+        col = col,
         width = width,
         height = height,
         style = "minimal",
@@ -118,6 +134,7 @@ function M.open_view(comments)
         title = " Review Comments ",
         title_pos = "center",
     })
+    vim.wo[win].winhighlight = "Normal:Normal,FloatBorder:MarginaliaBorder,FloatTitle:MarginaliaTitle"
 
     vim.keymap.set("n", "q", function()
         vim.api.nvim_win_close(win, true)
