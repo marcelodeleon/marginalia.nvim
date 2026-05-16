@@ -131,6 +131,20 @@ function M.refresh_extmarks(bufnr, file)
     end
 end
 
+-- Sync extmark positions back to store without clearing extmark_id (safe mid-session)
+function M.sync_positions(bufnr, file)
+    if not vim.api.nvim_buf_is_valid(bufnr) then return end
+    local comments = M.get_for_file(file)
+    for _, c in ipairs(comments) do
+        if c.extmark_id then
+            local pos = vim.api.nvim_buf_get_extmark_by_id(bufnr, ns, c.extmark_id, {})
+            if pos and pos[1] then
+                c.line = pos[1] + 1
+            end
+        end
+    end
+end
+
 -- Snapshot extmark positions back to store (call before buffer is wiped)
 function M.snapshot_positions(bufnr, file)
     if not vim.api.nvim_buf_is_valid(bufnr) then return end

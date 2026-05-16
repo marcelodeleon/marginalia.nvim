@@ -109,6 +109,27 @@ T['extmarks']['snapshot_positions on invalid buffer is no-op'] = function()
     MiniTest.expect.no_equality(c.extmark_id, nil)
 end
 
+T['extmarks']['sync_positions updates c.line from drifted extmark'] = function()
+    local c = comments.add({ file = "f.lua", line = 5, body = "test" })
+    comments.refresh_extmarks(bufnr, "f.lua")
+    -- insert a line at the top, pushing extmark from 0-indexed 4 → 5
+    vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, { "new top line" })
+    MiniTest.expect.equality(c.line, 5) -- stale — not yet synced
+    comments.sync_positions(bufnr, "f.lua")
+    MiniTest.expect.equality(c.line, 6) -- synced from extmark
+    -- get_at_line should find it at the new position, not the old
+    MiniTest.expect.equality(#comments.get_at_line("f.lua", 6), 1)
+    MiniTest.expect.equality(#comments.get_at_line("f.lua", 5), 0)
+end
+
+T['extmarks']['sync_positions preserves extmark_id'] = function()
+    local c = comments.add({ file = "f.lua", line = 3, body = "test" })
+    comments.refresh_extmarks(bufnr, "f.lua")
+    vim.api.nvim_buf_set_lines(bufnr, 0, 0, false, { "inserted" })
+    comments.sync_positions(bufnr, "f.lua")
+    MiniTest.expect.no_equality(c.extmark_id, nil)
+end
+
 T['extmarks']['register_buf / find_buf / unregister_buf lifecycle'] = function()
     comments.register_buf(bufnr, "test.lua")
     MiniTest.expect.equality(comments.find_buf("test.lua"), bufnr)

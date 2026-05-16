@@ -8,3 +8,11 @@ end, { nargs = 0, desc = "Open a marginalia review session (worktree vs HEAD)" }
 vim.api.nvim_create_user_command("ReviewClose", function(_)
     require("marginalia").close()
 end, { desc = "Close the active marginalia review session" })
+
+vim.api.nvim_create_user_command("ReviewSave", function(_)
+    require("marginalia").save()
+end, { desc = "Flush comments to REVIEW.md" })
+
+vim.api.nvim_create_user_command("ReviewClear", function(_)
+    require("marginalia").clear()
+end, { desc = "Delete REVIEW.md and reset all comments" })

@@ -11,6 +11,7 @@ test: deps
 test-unit: deps
 	$(NVIM_CMD) -c "lua MiniTest.run_file('tests/test_comments.lua')" -c "qa!"
 	$(NVIM_CMD) -c "lua MiniTest.run_file('tests/test_comments_extmarks.lua')" -c "qa!"
+	$(NVIM_CMD) -c "lua MiniTest.run_file('tests/test_review_file.lua')" -c "qa!"
 
 test-ui: deps
 	$(NVIM_CMD) -c "lua MiniTest.run_file('tests/test_ui.lua')" -c "qa!"
